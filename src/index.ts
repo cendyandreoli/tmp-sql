@@ -32,7 +32,7 @@ async function generateCompany() {
 async function generateProduct(companyId: string) {
   console.log('Gerando produtos')
   let products = []
-  for (let i = 0; i < BASE_SIZE * 10; i++) {
+  for (let i = 0; i < BASE_SIZE * Math.floor(Math.random() * (10 - 0) + 0); i++) {
     const product = await prismaClient.product.create({
       data: {
         idtProduct: randomUUID(),
