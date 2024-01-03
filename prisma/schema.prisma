@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  idtCompany String    @id @map("IDT_COMPANY")
+  namName    String    @map("NAM_NAME")
+  docCnpj    String    @map("DOC_CNPJ")
+  daCreated  DateTime  @default(now()) @map("DA_CREATED")
+  datUpdated DateTime  @updatedAt @map("DAT_UPDATED")
+  orders     Order[]
+  Product    Product[]
+
+  @@index([idtCompany], name: "company_idt_company_index")
+  @@map("COMPANY")
+}
+
+model Product {
+  idtProduct         String         @id @map("IDT_PRODUCT")
+  idtCompany         String         @map("IDT_COMPANY")
+  namName            String         @map("NAM_NAME")
+  numPrice           Decimal        @map("NUM_PRICE") @db.Decimal(9, 2)
+  numQuantity        BigInt         @map("NUM_QUANTITY")
+  numMinimumQuantity BigInt         @map("NUM_MINIUMUM_QUANTITY")
+  daCreated          DateTime       @default(now()) @map("DA_CREATED")
+  datUpdated         DateTime       @updatedAt @map("DAT_UPDATED")
+  OrderProduct       OrderProduct[]
+  company            Company        @relation(fields: [idtCompany], references: [idtCompany])
+
+  @@index([idtProduct], name: "product_idt_product_index")
+  @@index([idtCompany], name: "product_idt_company_index")
+  @@index([namName], name: "product_nam_name_index")
+  @@map("PRODUCT")
+}
+
+model Order {
+  idtOrder       String         @id @map("IDT_ORDER")
+  idtCompany     String         @map("IDT_COMPANY")
+  indPaymentType String         @map("IND_PAYMENT_TYPE")
+  indStatus      String         @map("IND_STATUS")
+  daCreated      DateTime       @default(now()) @map("DA_CREATED")
+  datUpdated     DateTime       @updatedAt @map("DAT_UPDATED")
+  company        Company        @relation(fields: [idtCompany], references: [idtCompany])
+  OrderProduct   OrderProduct[]
+
+  @@index([idtOrder, idtCompany], name: "order_idt_order_idt_company_index")
+  @@index([indPaymentType], name: "order_ind_payment_type_index")
+  @@index([indStatus], name: "order_ind_status_index")
+  @@map("ORDER")
+}
+
+model OrderProduct {
+  idtOrderProduct String  @id @map("IDT_ORDER_PRODUCT")
+  idtOrder        String  @map("IDT_ORDER")
+  idtProduct      String  @map("IDT_PRODUCT")
+  numQuantity     BigInt  @map("NUM_QUANTITY")
+  numPrice        Decimal @map("NUM_PRICE")
+  order           Order   @relation(fields: [idtOrder], references: [idtOrder])
+  product         Product @relation(fields: [idtProduct], references: [idtProduct])
+
+  @@index([idtOrder, idtProduct], name: "order_product_idt_order_idt_product_index")
+  @@map("ORDER_PRODUCT")
+}
